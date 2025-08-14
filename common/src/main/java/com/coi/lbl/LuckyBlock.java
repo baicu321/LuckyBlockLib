@@ -1,6 +1,7 @@
 package com.coi.lbl;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -48,7 +50,8 @@ public class LuckyBlock extends Block {
         return SHAPE;
     }
 
-    @Override
+// On Use
+
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand pHand, BlockHitResult pHit) {
         if (!level.isClientSide()) {
             ServerLevel serverLevel = (ServerLevel) level;
@@ -58,14 +61,81 @@ public class LuckyBlock extends Block {
             level.destroyBlock(pos, false);
             level.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT,
                     SoundSource.BLOCKS, 1.0F, 1.0F);
-            int luck = random.nextInt(1);//随机事件数量
-            switch (luck) {
-                case 0://生成随机数量钻石
+            int luck = random.nextInt(1);//Random Events
+            switch (luck) {//For example: obtain random diamonds
+                case 0:
                     spawnItem(serverLevel, pos, new ItemStack(Items.DIAMOND, random.nextInt(5) + 1));
+                    break;
             }
         }
         return InteractionResult.SUCCESS;
     }
+// On Break Block
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving,Player player) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity != null) {
+                if (!level.isClientSide()) {
+                    ServerLevel serverLevel = (ServerLevel) level;
+                    ServerPlayer serverPlayer = (ServerPlayer) player;
+                    RandomSource random = serverLevel.getRandom();
+
+                    level.destroyBlock(pos, false);
+                    level.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT,
+                            SoundSource.BLOCKS, 1.0F, 1.0F);
+                    int luck = random.nextInt(1);//Random Events
+                    switch (luck) {//For example: obtain random diamonds
+                        case 0:
+                            spawnItem(serverLevel, pos, new ItemStack(Items.DIAMOND, random.nextInt(5) + 1));
+                            break;
+                    }
+                }
+            }
+            super.onRemove(state, level, pos, newState, isMoving);
+        }
+    }
+    //When the RedStone signal is received
+
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean moved,Player player) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, moved);
+        if (level.hasNeighborSignal(pos)) {
+            //When turned on
+            if (!level.isClientSide()) {
+                ServerLevel serverLevel = (ServerLevel) level;
+                ServerPlayer serverPlayer = (ServerPlayer) player;
+                RandomSource random = serverLevel.getRandom();
+
+                level.destroyBlock(pos, false);
+                level.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT,
+                        SoundSource.BLOCKS, 1.0F, 1.0F);
+                int luck = random.nextInt(1);//Random Events
+                switch (luck) {//For example: obtain random diamonds
+                    case 0:
+                        spawnItem(serverLevel, pos, new ItemStack(Items.DIAMOND, random.nextInt(5) + 1));
+                        break;
+                }
+            }
+        } else {
+            //When turned off
+            if (!level.isClientSide()) {
+                ServerLevel serverLevel = (ServerLevel) level;
+                ServerPlayer serverPlayer = (ServerPlayer) player;
+                RandomSource random = serverLevel.getRandom();
+
+                level.destroyBlock(pos, false);
+                level.playSound(null, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT,
+                        SoundSource.BLOCKS, 1.0F, 1.0F);
+                int luck = random.nextInt(1);//Random Events
+                switch (luck) {//For example: obtain random diamonds
+                    case 0:
+                        spawnItem(serverLevel, pos, new ItemStack(Items.DIAMOND, random.nextInt(5) + 1));
+                        break;
+                }
+            }
+        }
+    }
+
+
 
     //Spawn Item
 
@@ -187,19 +257,19 @@ public class LuckyBlock extends Block {
             player.addEffect(effectInstance);
         }
     }
-//    //Play Sounds
-//    public static void playSound(ServerPlayer player, SoundEvent soundEvent, SoundSource category, float volume, float pitch) {
-//        if (player != null && player.level() instanceof ServerLevel serverLevel) {
-//            serverLevel.playSound(null, player.blockPosition(), soundEvent, category, volume, pitch);
-//        }
-//    }
-//
-//    public static void playCustomSound(ServerPlayer player, String soundName, SoundSource category, float volume, float pitch) {
-//        ResourceLocation soundLocation = new ResourceLocation(LuckyBlockLib.MOD_ID, soundName);
-//        SoundEvent soundEvent = ForgeRegistries.SOUND_EVENT.getValue(soundLocation);
-//
-//        if (soundEvent != null) {
-//            playSound(player, soundEvent, category, volume, pitch);
-//        }
-//    }
+    //Play Sounds
+    public static void playSound(ServerPlayer player, SoundEvent soundEvent, SoundSource category, float volume, float pitch) {
+        if (player != null && player.level() instanceof ServerLevel serverLevel) {
+            serverLevel.playSound(null, player.blockPosition(), soundEvent, category, volume, pitch);
+        }
+    }
+
+    public static void playCustomSound(ServerPlayer player, String soundName, SoundSource category, float volume, float pitch) {
+        ResourceLocation soundLocation = new ResourceLocation(LuckyBlockLib.MOD_ID, soundName);
+        SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.get(soundLocation);
+
+        if (soundEvent != null) {
+            playSound(player, soundEvent, category, volume, pitch);
+        }
+    }
 }

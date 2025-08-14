@@ -7,9 +7,9 @@ license = "Insert License Here"
 modId = "lbl"
 version = "${version}"
 displayName = "LuckyBlockLib"
-authors = "Me!"
+authors = "Cu6,IAFEnvoy"
 description = '''
-This is an example description! Tell everyone what your mod is about!
+A LuckyBlock Lib
 '''
 #logoFile = ""
 

@@ -3,9 +3,9 @@
   "id": "lbl",
   "version": "${version}",
   "name": "LuckyBlockLib",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A LuckyBlock Lib",
   "authors": [
-    "Me!"
+    "Cu6,IAFEnvoy"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
